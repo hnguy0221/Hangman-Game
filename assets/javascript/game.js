@@ -359,7 +359,7 @@ document.onkeyup = function(event)
             if (maxGuesses === 0)
             {
                 losses++;
-                youLoseStr = "<p class='text-center'>You lose</p>";
+                youLoseStr = "<p class='text-center'>You lose! It is " + computerGuess + "</p>";
                 lossStr = "    <p class='text-center'>" + losses + "</p>"; //four blank spaces are intented.
                 noOfMatches = 0;
                 maxGuesses = 12;
