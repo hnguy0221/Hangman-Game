@@ -1,0 +1,317 @@
+//============================================================================
+// Name        : game.js
+// Author      : Hai Nguyen
+// Version     :
+// Copyright   : 2017
+// Description : This file contains javascript code to play the hangman game.
+// Pseudocode  :
+// 1. Declare the following variables:
+//     1a var wins - initialize it to 0
+//     1b var guessesCnt - initialize it to 0
+//     1c var userGuess
+//     1d var computerGuess
+//     1e var html
+//     1f var userGuessesArr
+//     1g var maxGuesses - initialize it to 9
+//     1h var computerChoices - an array that contains name of each band.
+// 2. The letter between a and z is selected by the user.
+// 3. The computer selects a random word from the array.
+// 4. If the letter selected by the user equals to the letter randomly 
+//    selected by the computer, add one to the wins variable, reset the 
+//    maximum guesses count to 9 and display the results. The game is 
+//    is restarted at this point.
+// 5. If the letter selected by the user not equal to the leter randomly
+//    selected by the computer, allow the user to continue to select another
+//    letter. If after nine tries and the letter selected by the user still 
+//    does not match, add one to the losses variable, reset the max guesses
+//    count to 9 and display the results. The game is restarted at this 
+//    point. Note: each time the letter incorrectly guessed by the user will 
+//    be displayed on the screen.
+//============================================================================
+
+// Our array of possible computer choices.
+var computerChoices = ["blondie", "genesis", "theeagles", "boston", "jacksonbrown", 
+    "aerosmith", "vanhalen", "thepolice", "reospeedwagon", "pinkfloyd", "thewho",
+    "defleppard", "u2", "metallica", "eurythmics", "acdc", "queen", "journey",
+    "ledzepplint"];
+
+// Variables for tracking our wins, losses and guesses count. The wins and losses 
+// variables begin at 0 and the guessesCnt begins at 9.
+var wins = 0;
+var losses = 0;
+var userGuessesCnt = 0;
+var userGuess;
+var computerGuess;
+var html;
+var userGuessesArr = []; /*contains a list of guesses to check so that no 
+                           duplicate guess is allowed*/
+var userGuessesStr = "";
+var maxGuesses = 20;
+var noOfMatches = 0;
+var revealLetters = [];
+var dashesArr = [];
+var winStr = "";
+
+//============================================================================
+// Name        : seqSearch
+// Author      : Hai Nguyen
+// Version     :
+// Copyright   : 2017
+// Description : This function sequentially searches an item in the array. If
+//               found, it returns the location of the array for that item.
+//============================================================================
+function seqSearch(list, searchItem)
+{
+    var found = "false";
+    var loc = -1;
+    var i;
+
+    for (i = 0; i < list.length; i++)
+    {
+        if (searchItem === list[i])
+        {
+            found = "true";
+            break;
+        }
+    }
+    if (found === "true")
+    {
+        loc = i;
+    }
+    else
+    {
+        loc = -1;
+    }
+
+    return loc;
+}
+
+//============================================================================
+// Name        : initializeDashesArr
+// Author      : Hai Nguyen
+// Version     :
+// Copyright   : 2017
+// Description : This function sets the dashes array given a word and a 
+//               character. For example, if the word is "blondie" and chr is 
+//               "-", the array will be ["-", "-", "-", "-", "-", "-", "-"].
+//============================================================================
+/*function initializeDashesArr(word, chr)
+{
+    for (var i = 0; i < word.length; i++)
+    {
+        dashesArr[i] = chr;
+    }
+}*/
+
+//============================================================================
+// Name        : initializeDashesArr
+// Author      : Hai Nguyen
+// Version     :
+// Copyright   : 2017
+// Description : This function sets the dashes array given a word and a 
+//  For example, if the word is "blondie" and chr is 
+//               "-", the array will be ["-", "-", "-", "-", "-", "-", "-"].
+//============================================================================
+/*function getDashesArr()
+{
+    var ret_val = "";
+    var len = dashesArr.length;
+
+    for (var i = 0; i < len; i++)
+    {
+        ret_val += dashesArr[i];
+        if (i < len-1)
+        {
+            ret_val += " ";
+        }
+    }
+
+    return ret_val;
+}*/
+
+function determineMatch(word, letter)
+{
+    var loc = seqSearch(word, letter);
+
+    return loc;
+}
+
+function initializeRevealLetters(word, letter)
+{
+    for (var i = 0; i < word.length; i++)
+    {
+        revealLetters[i] = letter;
+    }
+}
+
+function setRevealLetters(word, letter)
+{
+    for (var i = 0; i < word.length; i++)
+    {
+        if (word[i] === letter)
+        {
+            revealLetters[i] = letter;
+            noOfMatches++;
+        }
+    }
+}
+
+function getRevealLetters()
+{
+    var ret_val = "";
+    var len = revealLetters.length;
+
+    for (var i = 0; i < len; i++)
+    {
+        ret_val += revealLetters[i];
+        if (i < len-1)
+        {
+            ret_val += " ";
+        }
+    }
+
+    return ret_val;
+}
+
+// Sets the computerGuess variable equal to a random choice from the computerChoice array.
+computerGuess = computerChoices[Math.floor(Math.random() * computerChoices.length)];
+console.log("Computer guess: " + computerGuess);
+
+//initializeDashesArr(computerGuess, "-");
+initializeRevealLetters(computerGuess, "-");
+
+
+html = "<div class='col-md-offset-4 col-sm-2 dotted-line'>" +
+       "    <img class='img-responsive padded-img' src='https://placehold.it/100x100'></img>" +
+       "</div>" +
+       "<div class='col-sm-2 dotted-line'>" +
+       "    <p class='text-center'>Press any key to get started</p>" +
+       "    <p class='text-center'>Wins</p>" +
+       "    <p class='text-center'>" + getRevealLetters() + "</p>" +
+       "    <p class='text-center'>Number of Guesses Remaining</p>" +
+       "    <p class='text-center'>" + maxGuesses + "</p>" +
+       "    <p class='text-center'>Letters Already Guessed</p>" +
+       "</div>";
+// Injecting the HTML we just created into our div and updating the game 
+// information on our page.
+document.querySelector("#game").innerHTML = html;
+
+// When the user presses a key, it will run the following function...
+document.onkeyup = function(event) 
+{
+    // Determine which key was pressed
+    //userGuess = String.fromCharCode(event.keyCode).toLowerCase();
+    userGuess = event.key;
+    userGuess = userGuess.toLowerCase();
+    console.log("User guess: " + userGuess);
+
+    //this is to make sure no duplicate guess is allowed.
+    var loc = seqSearch(userGuessesArr, userGuess);
+    console.log("Location: " + loc);
+
+    if ((userGuess.match(/[a-z0-9]/i)) && (userGuess !== "shift") && 
+        (userGuess !== "control") && (userGuess !== "alt") &&
+        (userGuess !== "meta") && (userGuess !== "enter") && 
+        (userGuess !== "backspace") && (userGuess !== "escape") &&
+        (userGuess !== "capslock") && (userGuess != "tab") && (loc === -1))
+    {
+        userGuessesArr[userGuessesCnt] = userGuess;
+        console.log("User Guesses Arr[" + userGuessesCnt + "]: " + userGuessesArr[userGuessesCnt]);
+
+        if (userGuessesCnt === 0)
+        {
+            userGuessesStr = userGuess;
+        }
+        else
+        {
+            userGuessesStr = userGuessesStr + ", " + userGuess;
+        }
+
+        userGuessesCnt++;  
+
+        var index = determineMatch(computerGuess, userGuess);
+        if (index === -1) 
+        {
+            maxGuesses--;
+            if (maxGuesses === 0)
+            {
+                losses++;
+                noOfMatches = 0;
+                maxGuesses = 20;
+                userGuessesStr = "";
+                userGuessesCnt = 0;
+                //Reset the computerGuess variable equal to a random choice from the computerChoice array.
+                computerGuess = computerChoices[Math.floor(Math.random() * computerChoices.length)];
+                console.log("Computer guess: " + computerGuess);
+                //Reset our dashes and reveal letters arrays
+                dashesArr = [];
+                revealLetters = [];
+                userGuessesArr = [];
+                //initializeDashesArr(computerGuess, "-");
+                initializeRevealLetters(computerGuess, "-");
+            }
+            html = "<div class='col-md-offset-4 col-sm-2 dotted-line'>" +
+                   "<img class='img-responsive padded-img' src='https://placehold.it/100x100'></img>" +
+                   "</div>" +
+                   "<div class='col-sm-2 dotted-line'>" +
+                   "    <p class='text-center'>Press any key to get started</p>" +
+                   "    <p class='text-center'>Wins</p>" +
+                   winStr +
+                   "    <p class='text-center'>" + getRevealLetters() + "</p>" +
+                   "    <p class='text-center'>Number of Guesses Remaining</p>" +
+                   "    <p class='text-center'>" + maxGuesses + "</p>" +
+                   "    <p class='text-center'>Letters Already Guessed</p>" +
+                   "    <p class='text-center'>" + userGuessesStr + "</p>" +
+                   "</div>";
+            // Injecting the HTML we just created into our div and updating the game 
+            // information on our page.
+            document.querySelector("#game").innerHTML = html;
+        }
+        else
+        {
+            setRevealLetters(computerGuess, userGuess);
+            console.log("noOfMatches = " + noOfMatches);
+            console.log("computerGuess.length = " + computerGuess.length);
+
+            if (noOfMatches === computerGuess.length)
+            {
+                wins++;
+                noOfMatches = 0;
+                maxGuesses = 20;
+                userGuessesStr = "";
+                userGuessesCnt = 0;
+                //Reset the computerGuess variable equal to a random choice from the computerChoice array.
+                computerGuess = computerChoices[Math.floor(Math.random() * computerChoices.length)];
+                console.log("Computer guess: " + computerGuess);
+                //Reset our dashes and reveal letters arrays
+                dashesArr = [];
+                revealLetters = [];
+                userGuessesArr = [];
+                //initializeDashesArr(computerGuess, "-");
+                initializeRevealLetters(computerGuess, "-");
+            }
+            
+            if (wins !== 0)
+            {
+                winStr = "    <p class='text-center'>" + wins + "</p>"
+            }
+        	  
+            html = "<div class='col-md-offset-4 col-sm-2 dotted-line'>" +
+                   "<img class='img-responsive padded-img' src='https://placehold.it/100x100'></img>" +
+                   "</div>" +
+                   "<div class='col-sm-2 dotted-line'>" +
+                   "    <p class='text-center'>Press any key to get started</p>" +
+                   "    <p class='text-center'>Wins</p>" + 
+                   winStr +
+                   "    <p class='text-center'>" + getRevealLetters() + "</p>" +
+                   "    <p class='text-center'>Number of Guesses Remaining</p>" +
+                   "    <p class='text-center'>" + maxGuesses + "</p>" +
+                   "    <p class='text-center'>Letters Already Guessed</p>" +
+                   "    <p class='text-center'>" + userGuessesStr + "</p>" +
+                   "</div>";
+            // Injecting the HTML we just created into our div and updating the game 
+            // information on our page.
+            document.querySelector("#game").innerHTML = html;
+        }     
+    }
+ };
