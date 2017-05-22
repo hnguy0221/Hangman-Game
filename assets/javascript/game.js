@@ -178,7 +178,7 @@ function getRevealLetters()
 // Description : This function determines which image to play based on the 
 //               the word the user guesses correctly. It returns the image, 
 //               the song title and the audio that correspond to the word. 
-//               function is called when the user gueses correctly.
+//               The function is called when the user guesses correctly.
 //============================================================================
 function setImageAudioStrings(word)
 {   
@@ -418,11 +418,6 @@ document.onkeyup = function(event)
                 userGuessesArr = [];
                 initializeRevealLetters(computerGuess, "-");
             }
-            
-            /*if (wins !== 0)
-            {
-                winStr = "    <p class='text-center'>" + wins + "</p>"
-            }*/
         	  
             html = songStr +
                    "<div class='col-md-offset-3 col-sm-2 dotted-line'>" +
